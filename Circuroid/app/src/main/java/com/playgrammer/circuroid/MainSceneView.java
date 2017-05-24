@@ -1,9 +1,12 @@
 package com.playgrammer.circuroid;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -14,18 +17,22 @@ public class MainSceneView extends View {
     Bitmap mainView;
     Bitmap mainPlay;
     Bitmap mainItem;
+    int width;
+    int height;
+
 
     public MainSceneView(Context context) {
         super(context);
         mainView = BitmapFactory.decodeResource(getResources(), R.drawable.mainview2);
         mainPlay = BitmapFactory.decodeResource(getResources(), R.drawable.mainplaybtn);
         mainItem = BitmapFactory.decodeResource(getResources(), R.drawable.mainitembtn);
+
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        int width = canvas.getWidth();
-        int height = canvas.getHeight();
+        width = canvas.getWidth();
+        height = canvas.getHeight();
         Bitmap ReMainImg = Bitmap.createScaledBitmap(mainView, width, height, true);
         int Playwidth = width/4;
         int Playheight = (int)(Playwidth * 0.875);
@@ -36,4 +43,3 @@ public class MainSceneView extends View {
         canvas.drawBitmap(ReMainPlay, (width-ReMainPlay.getWidth())/2, (height-ReMainPlay.getHeight())/2, null);
         canvas.drawBitmap(ReMainItem, (int)(width-(ReMainItem.getWidth() * 1.1)), (int)(height-(ReMainItem.getHeight() * 1.1)), null);
     }
-}
