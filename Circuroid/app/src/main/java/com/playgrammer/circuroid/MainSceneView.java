@@ -12,18 +12,28 @@ import android.view.View;
 
 public class MainSceneView extends View {
     Bitmap mainView;
+    Bitmap mainPlay;
+    Bitmap mainItem;
 
     public MainSceneView(Context context) {
         super(context);
-        mainView = BitmapFactory.decodeResource(getResources(), R.drawable.mainview);
+        mainView = BitmapFactory.decodeResource(getResources(), R.drawable.mainview2);
+        mainPlay = BitmapFactory.decodeResource(getResources(), R.drawable.mainplaybtn);
+        mainItem = BitmapFactory.decodeResource(getResources(), R.drawable.mainitembtn);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         int width = canvas.getWidth();
         int height = canvas.getHeight();
-        Bitmap resizeImg = Bitmap.createScaledBitmap(mainView, width, height, true);
+        Bitmap ReMainImg = Bitmap.createScaledBitmap(mainView, width, height, true);
+        int Playwidth = width/4;
+        int Playheight = (int)(Playwidth * 0.875);
+        Bitmap ReMainPlay = Bitmap.createScaledBitmap(mainPlay, Playwidth, Playheight, true);
+        Bitmap ReMainItem = Bitmap.createScaledBitmap(mainItem, width / 8, width / 8, true);
 
-        canvas.drawBitmap(resizeImg, 0, 0, null);
+        canvas.drawBitmap(ReMainImg, 0, 0, null);
+        canvas.drawBitmap(ReMainPlay, (width-ReMainPlay.getWidth())/2, (height-ReMainPlay.getHeight())/2, null);
+        canvas.drawBitmap(ReMainItem, (int)(width-(ReMainItem.getWidth() * 1.1)), (int)(height-(ReMainItem.getHeight() * 1.1)), null);
     }
 }
