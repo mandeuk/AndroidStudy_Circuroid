@@ -34,12 +34,13 @@ public class MainSceneView extends View {
         width = canvas.getWidth();
         height = canvas.getHeight();
         Bitmap ReMainImg = Bitmap.createScaledBitmap(mainView, width, height, true);
-        int Playwidth = width/4;
-        int Playheight = (int)(Playwidth * 0.875);
+        int Playwidth = width / 4;
+        int Playheight = (int) (Playwidth * 0.875);
         Bitmap ReMainPlay = Bitmap.createScaledBitmap(mainPlay, Playwidth, Playheight, true);
         Bitmap ReMainItem = Bitmap.createScaledBitmap(mainItem, width / 8, width / 8, true);
 
         canvas.drawBitmap(ReMainImg, 0, 0, null);
-        canvas.drawBitmap(ReMainPlay, (width-ReMainPlay.getWidth())/2, (height-ReMainPlay.getHeight())/2, null);
-        canvas.drawBitmap(ReMainItem, (int)(width-(ReMainItem.getWidth() * 1.1)), (int)(height-(ReMainItem.getHeight() * 1.1)), null);
+        canvas.drawBitmap(ReMainPlay, (width - ReMainPlay.getWidth()) / 2, (height - ReMainPlay.getHeight()) / 2, null);
+        canvas.drawBitmap(ReMainItem, (int) (width - (ReMainItem.getWidth() * 1.1)), (int) (height - (ReMainItem.getHeight() * 1.1)), null);
     }
+}
