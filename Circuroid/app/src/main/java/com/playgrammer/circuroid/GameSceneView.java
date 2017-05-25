@@ -43,8 +43,8 @@ public class GameSceneView extends View {
         if(gamecount == false)
         {
             gamecount = true;
-            playerX = (width / 2) - playerSize / 2;
-            playerY = (height / 2) + circleRad - playerSize / 2;
+            playerX = (width / 2);
+            playerY = (height / 2) + circleRad;
         }
 
         Bitmap resizeCircle = Bitmap.createScaledBitmap(Circle, (int)circleRad * 2, (int)circleRad * 2, true);
@@ -53,14 +53,12 @@ public class GameSceneView extends View {
 
         canvas.drawBitmap(resizeBackground, 0, 0, null);
         canvas.drawBitmap(resizeCircle, (width / 2) - circleRad, (height / 2) - circleRad, null);
-        canvas.drawBitmap(resizePlayer, playerX, playerY, null);
+        canvas.drawBitmap(resizePlayer, playerX - playerSize / 2, playerY - playerSize / 2, null);
 
         curTime = System.currentTimeMillis();
         if(curTime - lastTime > 500)
         {
-            float dirx = (width / 2 - playerX) / circleRad;
-            float diry = (height / 2 - playerY) / circleRad;
-            missile_list.add(new Missile(getContext(), (float)(playerX + playerSize / 2), (float)(playerY + playerSize / 2), dirx, diry));
+            missile_list.add(new Missile(getContext(), width, height, playerX, playerY, circleRad));
             lastTime = curTime;
         }
         for(Missile mis : missile_list)
@@ -94,8 +92,8 @@ public class GameSceneView extends View {
             else
                 playerX = -(float)Math.sqrt(circleRad * circleRad - playerY * playerY);
 
-            playerX += width / 2 - playerSize / 2;
-            playerY += height / 2 - playerSize / 2;
+            playerX += width / 2;
+            playerY += height / 2;
         }
         return true;
     }

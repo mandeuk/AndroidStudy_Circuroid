@@ -17,13 +17,20 @@ public class Missile extends View {
 
     public float posX, posY;
     float dirX, dirY;
+    float missileSizeX, missileSizeY;
+    float width, height;
 
-    public Missile(Context context, float posx, float posy, float dirx, float diry) {
+    public Missile(Context context, float _width, float _height, float posx, float posy, float dist) {
         super(context);
+        width = _width;
+        height = _height;
         posX = posx;
         posY = posy;
-        dirX = dirx;
-        dirY = diry;
+        dirX = (width / 2 - posx)/dist;
+        dirY = (height / 2 - posy)/dist;
+
+        missileSizeX = width * 0.02f;
+        missileSizeY = height * 0.03f;
     }
 
     @Override
@@ -33,13 +40,10 @@ public class Missile extends View {
 
     public void Draw(Canvas canvas)
     {
-        int width = canvas.getWidth();
-        int height = canvas.getHeight();
-
         posX += dirX;
         posY += dirY;
 
-        Bitmap resizeMis = Bitmap.createScaledBitmap(basicmis, (int)(width * 0.02f), (int)(height * 0.02f), true);
+        Bitmap resizeMis = Bitmap.createScaledBitmap(basicmis, (int)missileSizeX, (int)missileSizeY, true);
         canvas.drawBitmap(resizeMis, posX, posY, null);
     }
 }
