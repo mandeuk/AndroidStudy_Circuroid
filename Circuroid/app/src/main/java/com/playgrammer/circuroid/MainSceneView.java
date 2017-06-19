@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,6 +29,9 @@ public class MainSceneView extends View {
     /*화면크기를 저장하기 위한 int형 변수*/
     static int width;
     static int height;
+    static int halfwidth;
+    static int halfheight;
+    static boolean screensizecalculated = false;
 
     /*화면 상태를 저장하기 위한 변수수*/
     int viewState;
@@ -42,12 +46,15 @@ public class MainSceneView extends View {
 
     /*게임뷰*/
     Bitmap background, Circle, Player;
+    Bitmap resizeBackground,resizeCircle,resizePlayer;
+    boolean isresized = false;
     float playerX = 0;
     float playerY = 0;
     static float circleRad, playerSize;
     boolean gamecount = false;
     long lastTime, curTime;
     ArrayList<Missile> missile_list = new ArrayList<Missile>();
+    double dAngle = 90;
 
 
     public MainSceneView(Context context) {
@@ -90,9 +97,13 @@ public class MainSceneView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         //화면크기 구하기
-        width = canvas.getWidth();
-        height = canvas.getHeight();
-
+        if(screensizecalculated == false) {
+            width = canvas.getWidth();
+            height = canvas.getHeight();
+            halfwidth = width/2;
+            halfheight = height/2;
+            screensizecalculated = true;
+        }
         switch(viewState)
         {
             case STATE_MAIN: {
@@ -143,36 +154,41 @@ public class MainSceneView extends View {
 
 
             case STATE_GAME: {
-                width = canvas.getWidth();
-                height = canvas.getHeight();
                 circleRad = (int)(width * 0.9f) / 2;
                 playerSize = width / 10;
 
                 if(gamecount == false)
                 {
                     gamecount = true;
-                    playerX = (width / 2);
-                    playerY = (height / 2) + circleRad;
+                    playerX = (halfwidth);
+                    playerY = (halfheight) + circleRad;
                 }
 
-                Bitmap resizeCircle = Bitmap.createScaledBitmap(Circle, (int)circleRad * 2, (int)circleRad * 2, true);
-                Bitmap resizeBackground = Bitmap.createScaledBitmap(background, (int)width, (int)height, true);
-                Bitmap resizePlayer = Bitmap.createScaledBitmap(Player, (int)playerSize, (int)playerSize, true);
+                if(isresized == false) {//리사이즈에서 렉이 심각하게 걸려 게임 켰을때 한번만 리사이징 하도록 수정
+                    resizeBackground = Bitmap.createScaledBitmap(background, (int) width, (int) height, true);
+                    resizeCircle = Bitmap.createScaledBitmap(Circle, (int) circleRad * 2, (int) circleRad * 2, true);
+                    resizePlayer = Bitmap.createScaledBitmap(Player, (int) playerSize, (int) playerSize, true);
+                    isresized = true;
+                }
+
+                Matrix playermatrix = new Matrix();
+                playermatrix.postRotate((float)dAngle - 90);
+                Bitmap rotatedPlayer = Bitmap.createBitmap(resizePlayer, 0, 0, (int) playerSize, (int) playerSize, playermatrix, true);
 
                 canvas.drawBitmap(resizeBackground, 0, 0, null);
-                canvas.drawBitmap(resizeCircle, (width / 2) - circleRad, (height / 2) - circleRad, null);
-                canvas.drawBitmap(resizePlayer, playerX - playerSize / 2, playerY - playerSize / 2, null);
+                canvas.drawBitmap(resizeCircle, (halfwidth) - circleRad, (halfheight) - circleRad, null);
+                canvas.drawBitmap(rotatedPlayer, playerX - playerSize / 2, playerY - playerSize / 2, null);
 
                 curTime = System.currentTimeMillis();
-                if(curTime - lastTime > 500)
+                if(curTime - lastTime > 1000)//미사일 추가
                 {
-                    missile_list.add(new Missile(getContext(), width, height, playerX, playerY, circleRad));
+                    missile_list.add(new Missile(getContext(), width, height, playerX, playerY, circleRad, dAngle));
                     lastTime = curTime;
                 }
                 for(Missile mis : missile_list)
                 {
                     mis.Draw(canvas);
-                    if(mis.posX < (width / 2 + 10) && mis.posX > (width / 2 - 10) && mis.posY < (height / 2 + 10) && mis.posY > (height / 2 - 10))
+                    if(mis.posX < (halfwidth + 10) && mis.posX > (halfwidth - 10) && mis.posY < (halfheight + 10) && mis.posY > (halfheight - 10))
                     {
                         missile_list.remove(mis);
                         break;
@@ -226,22 +242,22 @@ public class MainSceneView extends View {
                     }
                 }
 
-                Rect RECTmachinegun =   new Rect(((width/2)-(imgwidth*2)), (((height/2)-imgwidth)/2), ((width/2)-(imgwidth*2))+imgwidth, (((height/2)-imgwidth)/2)+imgwidth);
+                Rect RECTmachinegun =   new Rect(((halfwidth)-(imgwidth*2)), (((halfheight)-imgwidth)/2), ((halfwidth)-(imgwidth*2))+imgwidth, (((halfheight)-imgwidth)/2)+imgwidth);
                 if(RECTmachinegun.contains(MouseX, MouseY))
                     if(event.ACTION_UP == event.getAction())
                     {showinfo = true;    showinfonum = 1;     invalidate();       return true;}
 
-                Rect RECTlaser =        new Rect((((width)-imgwidth)/2), (((height/2)-imgwidth)/2), (((width)-imgwidth)/2)+imgwidth, (((height/2)-imgwidth)/2)+imgwidth);
+                Rect RECTlaser =        new Rect((((width)-imgwidth)/2), (((halfheight)-imgwidth)/2), (((width)-imgwidth)/2)+imgwidth, (((halfheight)-imgwidth)/2)+imgwidth);
                 if(RECTlaser.contains(MouseX, MouseY))
                     if(event.ACTION_UP == event.getAction())
                     {showinfo = true;    showinfonum = 2;     invalidate();       return true;}
 
-                Rect RECTtripleshot =   new Rect(((width/2)+imgwidth), (((height/2)-imgwidth)/2), ((width/2)+imgwidth)+imgwidth, (((height/2)-imgwidth)/2)+imgwidth);
+                Rect RECTtripleshot =   new Rect(((halfwidth)+imgwidth), (((halfheight)-imgwidth)/2), ((halfwidth)+imgwidth)+imgwidth, (((halfheight)-imgwidth)/2)+imgwidth);
                 if(RECTtripleshot.contains(MouseX, MouseY))
                     if(event.ACTION_UP == event.getAction())
                     {showinfo = true;    showinfonum = 3;     invalidate();       return true;}
 
-                Rect RECTshield =       new Rect(((width/2)-(imgwidth*2)), (((height)-imgwidth)/2), ((width/2)-(imgwidth*2))+imgwidth, (((height)-imgwidth)/2)+imgwidth);
+                Rect RECTshield =       new Rect(((halfwidth)-(imgwidth*2)), (((height)-imgwidth)/2), ((halfwidth)-(imgwidth*2))+imgwidth, (((height)-imgwidth)/2)+imgwidth);
                 if(RECTshield.contains(MouseX, MouseY))
                     if(event.ACTION_UP == event.getAction())
                     {showinfo = true;    showinfonum = 4;     invalidate();       return true;}
@@ -251,7 +267,7 @@ public class MainSceneView extends View {
                     if(event.ACTION_UP == event.getAction())
                     {showinfo = true;    showinfonum = 5;     invalidate();       return true;}
 
-                Rect RECTchainbolt =    new Rect(((width/2)+imgwidth), (((height)-imgwidth)/2), ((width/2)+imgwidth)+imgwidth, (((height)-imgwidth)/2)+imgwidth);
+                Rect RECTchainbolt =    new Rect(((halfwidth)+imgwidth), (((height)-imgwidth)/2), ((halfwidth)+imgwidth)+imgwidth, (((height)-imgwidth)/2)+imgwidth);
                 if(RECTchainbolt.contains(MouseX, MouseY))
                     if(event.ACTION_UP == event.getAction())
                     {showinfo = true;    showinfonum = 6;     invalidate();       return true;}
@@ -264,19 +280,20 @@ public class MainSceneView extends View {
 
                 if(event.ACTION_MOVE == event.getAction())
                 {
-                    playerY = MouseY - height / 2;
-                    if(MouseY >= height / 2 + circleRad)
-                        playerY = circleRad;
-                    if(MouseY <= height / 2 - circleRad)
-                        playerY = -circleRad;
+                    double cx, cy;
 
-                    if(MouseX >= width / 2)
-                        playerX = (float)Math.sqrt(circleRad * circleRad - playerY * playerY);
-                    else
-                        playerX = -(float)Math.sqrt(circleRad * circleRad - playerY * playerY);
+                    cx = (double)halfwidth - (double)MouseX;
+                    cy = (double)halfheight - (double)MouseY;
+                    if (cy == 0.0f)
+                        cy = 0.000001f;
+                    dAngle = Math.atan(-cx / cy);
+                    if (cy < 0) dAngle += 3.141592;
+                    //if (MouseX <= halfwidth && MouseY <= halfheight) dAngle += 2 * 3.141592;
 
-                    playerX += width / 2;
-                    playerY += height / 2;
+                    dAngle = (dAngle * 57.295791)-90;
+
+                    playerX = (float)(Math.cos(dAngle*3.141592/180) * circleRad) + halfwidth;
+                    playerY = (float)(Math.sin(dAngle*3.141592/180) * circleRad) + halfheight;
                 }
                 break;
             }//end of case STATE_GAME:
@@ -287,6 +304,8 @@ public class MainSceneView extends View {
     }//end of onTouchEvent()
 
 }//end of class MainSceneView
+
+
 
 /*
 
