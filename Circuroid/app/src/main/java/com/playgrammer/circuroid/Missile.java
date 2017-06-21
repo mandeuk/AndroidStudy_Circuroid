@@ -19,17 +19,23 @@ public class Missile extends View {
     boolean ismisresize = false;
 
     public float posX, posY;
-    float dirX, dirY;
+    float dirX, dirY, originalX, originalY;
     float missileSizeX, missileSizeY;
     float width, height;
     double angle;
 
     long lastTime, curTime;//타이머용도
 
+    float halfwidth, halfheight, circleRad;
+
+    float temp, temp2, XCalibrate, YCalibrate;
+
     public Missile(Context context, float _width, float _height, float posx, float posy, float dist, double input_angle) {
         super(context);
         width = _width;
         height = _height;
+        originalX = posx;
+        originalY = posy;
         posX = posx;
         posY = posy;
         dirX = (width / 2 - posx)/dist;
@@ -38,7 +44,11 @@ public class Missile extends View {
         lastTime = 0;
         curTime = 0;
         missileSizeX = width * 0.02f;
-        missileSizeY = height * 0.03f;
+        missileSizeY = height * 0.055f;
+
+        halfwidth = width/2;
+        halfheight = height/2;
+        circleRad = dist;
     }
 
     @Override
@@ -48,20 +58,38 @@ public class Missile extends View {
 
     public void Draw(Canvas canvas)
     {
-        curTime = System.currentTimeMillis() / 1000;
-        if(lastTime == 0)
-        posX += dirX;
-        posY += dirY;
+
+        posX += dirX*2;
+        posY += dirY*2;
 
         if(ismisresize == false){
             Matrix matrix = new Matrix();
             matrix.postRotate((float)angle);
 
+
+
             resizeMis = Bitmap.createScaledBitmap(basicmis, (int)missileSizeX, (int)missileSizeY, true);
             finalMis = Bitmap.createBitmap(resizeMis, 0, 0, (int)missileSizeX, (int)missileSizeY, matrix, true);
             ismisresize = true;
         }
-        lastTime = curTime;
-        canvas.drawBitmap(finalMis, posX, posY, null);
+
+        //int imgmoveX, imgmoveY;
+        //imgmoveX = (int)(Math.cos((angle+180)*3.141592/180) * (missileSizeX/2));
+        //imgmoveY = (int)(Math.sin((angle+180)*3.141592/180) * (missileSizeX/2));
+
+        //float temp = (halfwidth + circleRad - posX);
+        //float XCalibrate = ((temp/(circleRad*2))*missileSizeX);
+        //float temp2 = (halfheight + circleRad - posY);
+        //float YCalibrate = ((temp2/(circleRad*2))*missileSizeY);
+
+        temp = (halfwidth + circleRad - originalX);
+        XCalibrate = ((temp/(circleRad*2))*finalMis.getWidth());
+        temp2 = (halfheight + circleRad - originalY);
+        YCalibrate = ((temp2/(circleRad*2))*finalMis.getHeight());
+
+        canvas.drawBitmap(finalMis, posX - XCalibrate, posY - YCalibrate, null);
+
+        Bitmap check = BitmapFactory.decodeResource(getResources(), R.drawable.poscheck);
+        canvas.drawBitmap(check, posX , posY, null);
     }
 }
